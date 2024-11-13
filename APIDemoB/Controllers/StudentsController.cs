@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDemoB.Models;
 
 namespace APIDemoB.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class StudentsController : ControllerBase
     {
@@ -22,81 +21,66 @@ namespace APIDemoB.Controllers
 
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudent()
+        public List<Student> GetStudent()
         {
-            return await _context.Student.ToListAsync();
+            return _context.Student.ToList();
         }
 
         // GET: api/Students/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(int id)
+        public Student GetStudent(int id)
         {
-            var student = await _context.Student.FindAsync(id);
-
-            if (student == null)
-            {
-                return NotFound();
-            }
-
-            return student;
+            return _context.Student.Find(id);
         }
 
         // PUT: api/Students/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStudent(int id, Student student)
+        public void PutStudent(int id, Student student)
         {
             if (id != student.StudentID)
             {
-                return BadRequest();
+                throw new ArgumentException("ID mismatch");
             }
 
             _context.Entry(student).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!StudentExists(id))
                 {
-                    return NotFound();
+                    throw new KeyNotFoundException("Student not found");
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/Students
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Student>> PostStudent(Student student)
+        public void PostStudent(Student student)
         {
             _context.Student.Add(student);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetStudent", new { id = student.StudentID }, student);
+            _context.SaveChanges();
         }
 
         // DELETE: api/Students/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStudent(int id)
+        public void DeleteStudent(int id)
         {
-            var student = await _context.Student.FindAsync(id);
+            var student = _context.Student.Find(id);
             if (student == null)
             {
-                return NotFound();
+                throw new KeyNotFoundException("Student not found");
             }
 
             _context.Student.Remove(student);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            _context.SaveChanges();
         }
 
         private bool StudentExists(int id)

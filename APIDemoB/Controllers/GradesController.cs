@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDemoB.Models;
 
 namespace APIDemoB.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class GradesController : ControllerBase
     {
@@ -22,81 +19,66 @@ namespace APIDemoB.Controllers
 
         // GET: api/Grades
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Grade>>> GetGrades()
+        public List<Grade> GetGrades()
         {
-            return await _context.Grades.ToListAsync();
+            return _context.Grades.ToList();
         }
 
         // GET: api/Grades/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Grade>> GetGrade(int id)
+        public Grade GetGrade(int id)
         {
-            var grade = await _context.Grades.FindAsync(id);
-
-            if (grade == null)
-            {
-                return NotFound();
-            }
-
-            return grade;
+            return _context.Grades.Find(id);
         }
 
         // PUT: api/Grades/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGrade(int id, Grade grade)
+        public void PutGrade(int id, Grade grade)
         {
             if (id != grade.GradeID)
             {
-                return BadRequest();
+                throw new ArgumentException("ID mismatch");
             }
 
             _context.Entry(grade).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!GradeExists(id))
                 {
-                    return NotFound();
+                    throw new KeyNotFoundException("Grade not found");
                 }
                 else
                 {
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
         // POST: api/Grades
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Grade>> PostGrade(Grade grade)
+        public void PostGrade(Grade grade)
         {
             _context.Grades.Add(grade);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetGrade", new { id = grade.GradeID }, grade);
+            _context.SaveChanges();
         }
 
         // DELETE: api/Grades/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGrade(int id)
+        public void DeleteGrade(int id)
         {
-            var grade = await _context.Grades.FindAsync(id);
+            var grade = _context.Grades.Find(id);
             if (grade == null)
             {
-                return NotFound();
+                throw new KeyNotFoundException("Grade not found");
             }
 
             _context.Grades.Remove(grade);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            _context.SaveChanges();
         }
 
         private bool GradeExists(int id)

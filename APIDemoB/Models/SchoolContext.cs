@@ -9,7 +9,7 @@ namespace APIDemoB.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=LAB1507-17\\SQLEXPRESS03; Database=APIDemoB; Integrated Security=True;Trust Server Certificate=True ");
+            optionsBuilder.UseSqlServer("Server=DESKTOP-UP3IQU6\\ALEXANDER; Database=APIDemoB; Integrated Security=True;Trust Server Certificate=True ");
         }
         public DbSet<APIDemoB.Models.Student> Student { get; set; } = default!;
     }
